@@ -1,0 +1,11 @@
+[project]
+name = "memoryguide-backend"
+version = "1.0.0"
+description = "MemoryGuide FastAPI backend"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

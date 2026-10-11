@@ -1,0 +1,22 @@
+-- DEVELOPMENT ONLY. Do not apply to production.
+-- These accounts use the password DevPass123!
+-- The Argon2 hash below is for local development. Prefer backend/scripts/seed_dev.py
+-- which generates hashes with the same hasher the API uses.
+
+-- Replace :PASSWORD_HASH with a current Argon2 hash before running this file,
+-- or use: python scripts/seed_dev.py
+
+-- Example after generating a hash:
+-- INSERT INTO users (id, email, password_hash, role, full_name, phone, is_active)
+-- VALUES
+--   ('11111111-1111-1111-1111-111111111111', 'patient.dev@example.com', '<argon2-hash>', 'patient', 'Dev Patient', NULL, TRUE),
+--   ('22222222-2222-2222-2222-222222222222', 'caregiver.dev@example.com', '<argon2-hash>', 'caregiver', 'Dev Caregiver', NULL, TRUE);
+--
+-- INSERT INTO patient_profiles (id, user_id, link_code)
+-- VALUES ('33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111111', 'DEVLINK1');
+--
+-- INSERT INTO patient_settings (patient_id)
+-- VALUES ('11111111-1111-1111-1111-111111111111');
+--
+-- INSERT INTO caregiver_patients (caregiver_id, patient_id, status)
+-- VALUES ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'active');

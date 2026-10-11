@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.env
+*.db
+memoryguide_dev.db
+.DS_Store
+firebase-service-account.json
+*.iml
+.idea/
+.vscode/
+mobile/**/build/
+mobile/**/.dart_tool/

@@ -1,0 +1,131 @@
+from datetime import datetime
+from math import ceil
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+from app.core.exceptions import ForbiddenError
+from app.core.permissions import require_patient_access
+from app.models.location import Location
+from app.models.safety_event import AlertStatus, AlertType, SafetyEvent
+from app.models.user import User, UserRole
+from app.repositories.alert_repository import AlertRepository
+from app.repositories.location_repository import LocationRepository
+from app.repositories.settings_repository import SettingsRepository
+from app.schemas.common import PaginatedData, PaginationMeta
+from app.schemas.location import (
+    LatestLocationData,
+    LocationCreate,
+    LocationData,
+    PatientStatusData,
+)
+from app.services.geofence_service import GeofenceService
+from app.utils.time import ensure_utc, utcnow
+
+
+class LocationService:
+    def __init__(self, db: Session) -> None:
+        self.db = db
+        self.locations = LocationRepository(db)
+        self.settings = SettingsRepository(db)
+        self.alerts = AlertRepository(db)
+
+    def record(self, actor: User, patient_id: UUID, payload: LocationCreate) -> LocationData:
+        require_patient_access(self.db, actor, patient_id)
+        if actor.role == UserRole.CAREGIVER or (actor.id != patient_id and actor.role != UserRole.ADMIN):
+            raise ForbiddenError("Only the patient can submit location updates")
+        recorded_at = ensure_utc(payload.recorded_at) if payload.recorded_at else utcnow()
+        location = Location(
+            patient_id=patient_id,
+            latitude=payload.latitude,
+            longitude=payload.longitude,
+            accuracy_meters=payload.accuracy_meters,
+            altitude_meters=payload.altitude_meters,
+            speed_mps=payload.speed_mps,
+            heading_degrees=payload.heading_degrees,
+            recorded_at=recorded_at,
+        )
+        self.locations.add(location)
+        self._maybe_geofence_alert(patient_id, payload.latitude, payload.longitude)
+        self.db.commit()
+        self.db.refresh(location)
+        return LocationData.model_validate(location)
+
+    def status(self, actor: User, patient_id: UUID) -> PatientStatusData:
+        require_patient_access(self.db, actor, patient_id)
+        settings = self.settings.get(patient_id)
+        latest = self.locations.latest(patient_id)
+        latest_data = None
+        inside = None
+        if latest is not None:
+            latest_data = LatestLocationData(
+                latitude=latest.latitude,
+                longitude=latest.longitude,
+                accuracy_meters=latest.accuracy_meters,
+                recorded_at=latest.recorded_at,
+            )
+            inside = GeofenceService.inside_safe_zone(settings, latest.latitude, latest.longitude)
+        return PatientStatusData(
+            patient_id=patient_id,
+            tracking_enabled=bool(settings.tracking_enabled) if settings else True,
+            latest_location=latest_data,
+            inside_safe_zone=inside,
+            open_alert_count=self.alerts.count_open(patient_id),
+            location_available=latest is not None,
+        )
+
+    def history(
+        self,
+        actor: User,
+        patient_id: UUID,
+        *,
+        page: int,
+        page_size: int,
+        since: datetime | None = None,
+        until: datetime | None = None,
+    ) -> PaginatedData[LocationData]:
+        require_patient_access(self.db, actor, patient_id)
+        items, total = self.locations.list_for_patient(
+            patient_id,
+            page=page,
+            page_size=page_size,
+            since=since,
+            until=until,
+        )
+        return PaginatedData(
+            items=[LocationData.model_validate(item) for item in items],
+            pagination=PaginationMeta(
+                page=page,
+                page_size=page_size,
+                total=total,
+                total_pages=ceil(total / page_size) if page_size else 0,
+            ),
+        )
+
+    def _maybe_geofence_alert(self, patient_id: UUID, latitude: float, longitude: float) -> None:
+        settings = self.settings.get(patient_id)
+        if settings is None or not settings.geofence_alerts_enabled:
+            return
+        inside = GeofenceService.inside_safe_zone(settings, latitude, longitude)
+        if inside is None:
+            return
+        alert_type = AlertType.GEOFENCE_ENTER if inside else AlertType.GEOFENCE_EXIT
+        existing = self.alerts.latest_open_of_type(patient_id, alert_type)
+        if existing is not None:
+            return
+        opposite = AlertType.GEOFENCE_EXIT if inside else AlertType.GEOFENCE_ENTER
+        open_opposite = self.alerts.latest_open_of_type(patient_id, opposite)
+        if open_opposite is not None:
+            open_opposite.status = AlertStatus.RESOLVED
+            open_opposite.resolved_at = utcnow()
+        self.alerts.add(
+            SafetyEvent(
+                patient_id=patient_id,
+                alert_type=alert_type,
+                status=AlertStatus.OPEN,
+                latitude=latitude,
+                longitude=longitude,
+                notification_status="skipped",
+                message="Patient entered the safe zone" if inside else "Patient left the safe zone",
+            )
+        )
