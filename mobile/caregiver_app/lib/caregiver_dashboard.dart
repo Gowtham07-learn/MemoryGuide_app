@@ -1,6 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'core/services/caregiver_service_locator.dart';
+import 'core/theme/liquid_glass.dart';
 import 'features/authentication/caregiver_login_screen.dart';
 import 'features/safety/caregiver_safety_view.dart';
 import 'medications_screen.dart';
@@ -36,54 +38,75 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: IndexedStack(
-          index: _selectedTab,
-          children: [
-            _DashboardHome(
-              onOpenMedications: () => _selectTab(2),
-              onOpenSchedule: () => _selectTab(1),
-              onOpenProfile: () => _selectTab(3),
-              appointment: _nextAppointment,
-            ),
-            _SchedulePage(
-              appointments: _appointments,
-              onChanged: () => setState(() {}),
-            ),
-            const MedicationsScreen(),
-            const _ProfilePage(),
-          ],
+      backgroundColor: Colors.transparent,
+      body: GlassAtmosphere(
+        isDark: false,
+        child: SafeArea(
+          child: IndexedStack(
+            index: _selectedTab,
+            children: [
+              _DashboardHome(
+                onOpenMedications: () => _selectTab(2),
+                onOpenSchedule: () => _selectTab(1),
+                onOpenProfile: () => _selectTab(3),
+                appointment: _nextAppointment,
+              ),
+              _SchedulePage(
+                appointments: _appointments,
+                onChanged: () => setState(() {}),
+              ),
+              const MedicationsScreen(),
+              const _ProfilePage(),
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedTab,
-        onDestinationSelected: _selectTab,
-        backgroundColor: Colors.white,
-        indicatorColor: _mint,
-        elevation: 0,
-        height: 72,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.grid_view_rounded),
-            selectedIcon: Icon(Icons.grid_view_rounded),
-            label: 'Home',
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.88),
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  width: 1.2,
+                ),
+              ),
+            ),
+            child: NavigationBar(
+              selectedIndex: _selectedTab,
+              onDestinationSelected: _selectTab,
+              backgroundColor: Colors.transparent,
+              indicatorColor: _mint,
+              elevation: 0,
+              height: 72,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.grid_view_rounded),
+                  selectedIcon: Icon(Icons.grid_view_rounded),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.calendar_month_outlined),
+                  selectedIcon: Icon(Icons.calendar_month_rounded),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.medication_outlined),
+                  selectedIcon: Icon(Icons.medication_rounded),
+                  label: 'Medicine',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person_outline_rounded),
+                  selectedIcon: Icon(Icons.person_rounded),
+                  label: 'Profile',
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month_rounded),
-            label: 'Schedule',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.medication_outlined),
-            selectedIcon: Icon(Icons.medication_rounded),
-            label: 'Medicine',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -578,11 +601,15 @@ class _PatientCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        boxShadow: const [
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.28),
+          width: 1.5,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x24174D43),
+            color: const Color(0xFF174D43).withValues(alpha: 0.22),
             blurRadius: 22,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           ),
         ],
       ),

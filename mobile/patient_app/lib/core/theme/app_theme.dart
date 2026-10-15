@@ -16,7 +16,7 @@ class PatientAppTheme {
   static const Color secondaryText = Color(0xFF64748B);
   static const Color borders = Color(0xFFE2E8F0);
 
-  // High contrast & extra large touch targets for cognitive accessibility
+  // High contrast & extra large touch targets for cognitive accessibility with Liquid Glass tokens
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     scaffoldBackgroundColor: background,
@@ -32,7 +32,7 @@ class PatientAppTheme {
       onSurface: primaryText,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: cardBackground,
+      backgroundColor: Colors.transparent,
       foregroundColor: deepNavy,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -41,23 +41,23 @@ class PatientAppTheme {
         fontSize: 22,
         fontWeight: FontWeight.bold,
         color: deepNavy,
-        letterSpacing: -0.3,
+        letterSpacing: -0.4,
       ),
     ),
     cardTheme: CardThemeData(
-      color: cardBackground,
+      color: Colors.white.withValues(alpha: 0.85),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: borders, width: 1),
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.65), width: 1.2),
       ),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(
         fontSize: 32,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w800,
         color: primaryText,
-        letterSpacing: -0.5,
+        letterSpacing: -0.6,
       ),
       titleLarge: TextStyle(
         fontSize: 22,

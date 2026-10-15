@@ -299,77 +299,105 @@ class _EmergencySosButtonState extends State<EmergencySosButton> {
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOutCubic,
               child: Container(
-                height: 170,
-                width: 170,
+                height: 180,
+                width: 180,
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.4),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.65),
+                    width: 1.5,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: (_isDispatched
                               ? const Color(0xFF991B1B)
                               : PatientAppTheme.helpRed)
-                          .withValues(alpha: _isPressed ? 0.25 : 0.38),
-                      blurRadius: _isPressed ? 14 : 24,
-                      spreadRadius: _isPressed ? 1 : 2,
-                      offset: Offset(0, _isPressed ? 3 : 6),
+                          .withValues(alpha: _isPressed ? 0.22 : 0.35),
+                      blurRadius: _isPressed ? 18 : 30,
+                      spreadRadius: _isPressed ? 1 : 4,
+                      offset: Offset(0, _isPressed ? 4 : 8),
                     ),
                   ],
                 ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isDispatched
-                        ? const Color(0xFF991B1B)
-                        : PatientAppTheme.helpRed,
-                    foregroundColor: Colors.white,
-                    shape: const CircleBorder(),
-                    elevation: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: _isDispatched
+                          ? const [
+                              Color(0xFFB91C1C),
+                              Color(0xFF7F1D1D),
+                            ]
+                          : const [
+                              Color(0xFFEF4444),
+                              Color(0xFFDC2626),
+                              Color(0xFFB91C1C),
+                            ],
+                    ),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      width: 1.2,
+                    ),
                   ),
-                  onPressed: _triggerEmergency,
-                  child: _isLoading
-                      ? const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 38,
-                              height: 38,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3.5,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: const CircleBorder(),
+                      elevation: 0,
+                    ),
+                    onPressed: _triggerEmergency,
+                    child: _isLoading
+                        ? const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 38,
+                                height: 38,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3.5,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'SENDING...',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                              SizedBox(height: 10),
+                              Text(
+                                'SENDING...',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _isDispatched
-                                  ? Icons.check_circle_outline_rounded
-                                  : Icons.warning_rounded,
-                              size: 52,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _isDispatched ? 'HELP SENT' : 'CALL HELP',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                            ],
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _isDispatched
+                                    ? Icons.check_circle_outline_rounded
+                                    : Icons.warning_rounded,
+                                size: 52,
                               ),
-                            ),
-                          ],
-                        ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _isDispatched ? 'HELP SENT' : 'CALL HELP',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ),

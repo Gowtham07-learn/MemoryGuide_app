@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/safe_zone_state.dart';
@@ -39,112 +40,140 @@ class SafeZoneBanner extends StatelessWidget {
       container: true,
       liveRegion: true,
       label: semanticLabel,
-      child: AnimatedContainer(
-        duration: disableAnimations
-            ? Duration.zero
-            : const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: bannerConfig.backgroundColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: bannerConfig.borderColor, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: bannerConfig.contentColor.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Top status pill badge: clear textual status for non-color accessibility
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: bannerConfig.contentColor.withValues(alpha: 0.25),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: bannerConfig.contentColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        bannerConfig.statusLabel,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: bannerConfig.contentColor,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  'SAFETY STATUS',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
-                    color: bannerConfig.contentColor.withValues(alpha: 0.7),
-                  ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: AnimatedContainer(
+            duration: disableAnimations
+                ? Duration.zero
+                : const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            width: double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: bannerConfig.backgroundColor.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: bannerConfig.contentColor.withValues(alpha: 0.12),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
                 ),
               ],
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.40),
+                  Colors.white.withValues(alpha: 0.05),
+                ],
+              ),
             ),
-            const SizedBox(height: 14),
-
-            // Hero content: Elevated icon badge + Title + Supporting location
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                ExcludeSemantics(
-                  child: Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: bannerConfig.contentColor.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              bannerConfig.contentColor.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                // Top status pill badge: clear textual status for non-color accessibility
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: bannerConfig.contentColor.withValues(alpha: 0.3),
+                          width: 1,
                         ),
-                      ],
+                        boxShadow: [
+                          BoxShadow(
+                            color: bannerConfig.contentColor.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: bannerConfig.contentColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: bannerConfig.contentColor.withValues(alpha: 0.6),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          Text(
+                            bannerConfig.statusLabel,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: bannerConfig.contentColor,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Icon(
-                      bannerConfig.icon,
-                      color: bannerConfig.contentColor,
-                      size: 32,
+                    Text(
+                      'SAFETY STATUS',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: bannerConfig.contentColor.withValues(alpha: 0.75),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 16),
+
+                // Hero content: Elevated icon badge + Title + Supporting location
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ExcludeSemantics(
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  bannerConfig.contentColor.withValues(alpha: 0.18),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          bannerConfig.icon,
+                          color: bannerConfig.contentColor,
+                          size: 32,
+                        ),
+                      ),
+                    ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -181,7 +210,9 @@ class SafeZoneBanner extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   _BannerDisplayConfig _getBannerConfig(SafeZoneInfo info) {

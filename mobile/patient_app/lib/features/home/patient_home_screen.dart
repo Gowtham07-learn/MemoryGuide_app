@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/liquid_glass.dart';
 import '../../core/utils/location_helper.dart';
 import '../../data/models/safe_zone_state.dart';
 import '../help/emergency_sos_button.dart';
@@ -135,7 +137,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     final linkCode = auth.currentUser?.linkCode;
 
     return Scaffold(
-      backgroundColor: PatientAppTheme.background,
+      extendBodyBehindAppBar: false,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -143,37 +146,48 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             Icon(
               Icons.shield_rounded,
               color: PatientAppTheme.primaryBlue,
-              size: 22,
+              size: 24,
             ),
             SizedBox(width: 8),
             Text(
               'MemoryGuide',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 fontSize: 22,
                 color: PatientAppTheme.deepNavy,
-                letterSpacing: -0.3,
+                letterSpacing: -0.4,
               ),
             ),
           ],
         ),
-        backgroundColor: PatientAppTheme.cardBackground,
+        backgroundColor: Colors.white.withValues(alpha: 0.75),
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Divider(
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
             height: 1.0,
-            thickness: 1.0,
-            color: PatientAppTheme.borders,
+            color: Colors.white.withValues(alpha: 0.8),
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.person_outline_rounded,
-              color: PatientAppTheme.deepNavy,
+            icon: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.85),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 1.2,
+                ),
+              ),
+              child: const Icon(
+                Icons.person_outline_rounded,
+                color: PatientAppTheme.deepNavy,
+                size: 20,
+              ),
             ),
             tooltip: 'My Profile',
             onPressed: () {
@@ -197,14 +211,21 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                   decoration: BoxDecoration(
                     color: _showSimulator
                         ? const Color(0xFFEFF6FF)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
+                        : Colors.white.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _showSimulator
                           ? const Color(0xFFBFDBFE)
-                          : PatientAppTheme.borders,
-                      width: 1,
+                          : Colors.white.withValues(alpha: 0.9),
+                      width: 1.2,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     _showSimulator ? Icons.tune_rounded : Icons.tune_outlined,
@@ -223,82 +244,110 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 18.0),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 580),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // 1. Time and Day orientation greeting (Open typography hero)
-                        OrientationHeader(patientName: patientName),
-                        const SizedBox(height: 14),
+      body: GlassAtmosphere(
+        isDark: false,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 18.0),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 580),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // 1. Time and Day orientation greeting (Open typography hero)
+                          OrientationHeader(patientName: patientName),
+                          const SizedBox(height: 14),
 
-                        // Link Code banner if user is authenticated
-                        if (linkCode != null)
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                  color: const Color(0xFFBFDBFE), width: 1.2),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.link_rounded,
-                                    color: PatientAppTheme.primaryBlue),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          // Link Code banner if user is authenticated
+                          if (linkCode != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      width: 1.2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF2563EB).withValues(alpha: 0.06),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
                                     children: [
-                                      const Text(
-                                        'CAREGIVER LINK CODE',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
-                                          color: PatientAppTheme.primaryBlue,
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEFF6FF),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: const Color(0xFFBFDBFE),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: const Icon(Icons.link_rounded,
+                                            color: PatientAppTheme.primaryBlue,
+                                            size: 20),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'CAREGIVER LINK CODE',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.8,
+                                                color: PatientAppTheme.primaryBlue,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              linkCode,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 1.5,
+                                                color: PatientAppTheme.deepNavy,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        linkCode,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.5,
-                                          color: PatientAppTheme.deepNavy,
-                                        ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const PatientProfileScreen(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('View Code'),
                                       ),
                                     ],
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const PatientProfileScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('View Code'),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-
                         // 2. Safe Zone primary status hero card
                         SafeZoneBanner(info: _currentSafeZoneInfo),
                         const SizedBox(height: 24),
@@ -426,73 +475,82 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSimulatorBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: PatientAppTheme.cardBackground,
-        border: const Border(
-          top: BorderSide(color: PatientAppTheme.borders, width: 1.0),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF172033).withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.85),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.9),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF172033).withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, -4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 580),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 580),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    '🧪 Live Status Simulator',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: PatientAppTheme.primaryText,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '🧪 Live Status Simulator',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: PatientAppTheme.primaryText,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => setState(() => _showSimulator = false),
+                        child: const Icon(Icons.close,
+                            size: 18, color: PatientAppTheme.secondaryText),
+                      ),
+                    ],
                   ),
-                  GestureDetector(
-                    onTap: () => setState(() => _showSimulator = false),
-                    child: const Icon(Icons.close,
-                        size: 18, color: PatientAppTheme.secondaryText),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildFilterChip('Inside Home', SafeZoneStatus.inside,
+                            'Home (Maple Street)'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(
+                            'Outside Zone', SafeZoneStatus.outside, null),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(
+                            'Locating GPS', SafeZoneStatus.locating, null),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(
+                            'Location Paused', SafeZoneStatus.unavailable, null),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('Signal Delayed', SafeZoneStatus.stale,
+                            'Home (Maple Street)'),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('Inside Home', SafeZoneStatus.inside,
-                        'Home (Maple Street)'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                        'Outside Zone', SafeZoneStatus.outside, null),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                        'Locating GPS', SafeZoneStatus.locating, null),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                        'Location Paused', SafeZoneStatus.unavailable, null),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Signal Delayed', SafeZoneStatus.stale,
-                        'Home (Maple Street)'),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

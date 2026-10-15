@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../caregiver_dashboard.dart';
 import '../../core/services/caregiver_service_locator.dart';
+import '../../core/theme/liquid_glass.dart';
 
 const _forest = Color(0xFF174D43);
 const _forestLight = Color(0xFF286B5D);
 const _mint = Color(0xFFE7F3EC);
-const _canvas = Color(0xFFF7F8F5);
 const _ink = Color(0xFF1D2C27);
-const _line = Color(0xFFE9EDE8);
 
 class CaregiverLoginScreen extends StatefulWidget {
   const CaregiverLoginScreen({super.key});
@@ -85,21 +84,17 @@ class _CaregiverLoginScreenState extends State<CaregiverLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _canvas,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Card(
-                elevation: 0,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  side: const BorderSide(color: _line, width: 1.5),
-                ),
-                child: Padding(
+      backgroundColor: Colors.transparent,
+      body: GlassAtmosphere(
+        isDark: false,
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: GlassCard(
+                  borderRadius: 28,
                   padding: const EdgeInsets.all(28.0),
                   child: Form(
                     key: _formKey,

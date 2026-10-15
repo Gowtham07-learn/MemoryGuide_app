@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/liquid_glass.dart';
 import '../home/patient_home_screen.dart';
 
 class PatientLoginScreen extends StatefulWidget {
@@ -79,21 +80,18 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PatientAppTheme.background,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  side: const BorderSide(color: PatientAppTheme.borders, width: 1.5),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(28.0),
+      backgroundColor: Colors.transparent,
+      body: GlassAtmosphere(
+        isDark: false,
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: GlassCard(
+                  borderRadius: 28,
+                  padding: const EdgeInsets.all(30.0),
                   child: Form(
                     key: _formKey,
                     child: Column(

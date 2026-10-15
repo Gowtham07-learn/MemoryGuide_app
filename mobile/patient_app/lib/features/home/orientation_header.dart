@@ -33,13 +33,23 @@ class OrientationHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Calming date badge with calendar icon
+            // Calming date badge with Liquid Glass capsule
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFDBEAFE), width: 1),
+                color: Colors.white.withValues(alpha: 0.75),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -54,14 +64,15 @@ class OrientationHeader extends StatelessWidget {
                     formattedDate,
                     style: const TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: PatientAppTheme.primaryBlue,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
             // Welcoming patient greeting headline
             Text(

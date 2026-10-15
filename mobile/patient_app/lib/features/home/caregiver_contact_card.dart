@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -63,24 +64,39 @@ class CaregiverContactCard extends StatelessWidget {
       container: true,
       label:
           'Primary caregiver $caregiverName, your $relationship. Phone number $phoneNumber.',
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: PatientAppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: PatientAppTheme.borders, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF172033).withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.85),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF15803D).withValues(alpha: 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.45),
+                  Colors.white.withValues(alpha: 0.08),
+                ],
+              ),
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
             // Category header badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,6 +244,8 @@ class CaregiverContactCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }

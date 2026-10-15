@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
@@ -188,30 +189,43 @@ class _FamiliarVoiceCardState extends State<FamiliarVoiceCard> {
       container: true,
       label:
           'Familiar Voice message card. Listen to a familiar voice message. Tap Play Voice button to listen.',
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: PatientAppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color:
-                _isPlaying ? const Color(0xFFC4B5FD) : PatientAppTheme.borders,
-            width: _isPlaying ? 1.5 : 1.0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: _isPlaying
-                  ? PatientAppTheme.voicePurple.withValues(alpha: 0.08)
-                  : const Color(0xFF172033).withValues(alpha: 0.04),
-              blurRadius: _isPlaying ? 16 : 12,
-              offset: const Offset(0, 3),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _isPlaying
+                    ? const Color(0xFFC4B5FD)
+                    : Colors.white.withValues(alpha: 0.85),
+                width: _isPlaying ? 1.5 : 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _isPlaying
+                      ? PatientAppTheme.voicePurple.withValues(alpha: 0.12)
+                      : const Color(0xFF6D28D9).withValues(alpha: 0.05),
+                  blurRadius: _isPlaying ? 20 : 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.45),
+                  Colors.white.withValues(alpha: 0.08),
+                ],
+              ),
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
             // Category header badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -366,6 +380,8 @@ class _FamiliarVoiceCardState extends State<FamiliarVoiceCard> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
