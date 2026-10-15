@@ -2,7 +2,7 @@ import os
 from collections.abc import Generator
 
 os.environ["ENVIRONMENT"] = "test"
-os.environ["SECRET_KEY"] = "test-secret-key-for-tests-only"
+os.environ["SECRET_KEY"] = "test-secret-key-for-tests-only-32bytes"
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 os.environ["CORS_ORIGINS"] = "http://testserver"
 os.environ.pop("FIREBASE_CREDENTIALS_FILE", None)

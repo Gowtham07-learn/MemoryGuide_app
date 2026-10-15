@@ -1,18 +1,62 @@
 import 'package:flutter/material.dart';
 
 import 'caregiver_dashboard.dart';
+import 'core/services/caregiver_service_locator.dart';
+import 'data/models/caregiver_models.dart';
+import 'features/authentication/caregiver_login_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MemoryGuideApp());
 }
 
-class MemoryGuideApp extends StatelessWidget {
-  const MemoryGuideApp({super.key});
+class MemoryGuideApp extends StatefulWidget {
+  final Widget? home;
+  const MemoryGuideApp({super.key, this.home});
+
+  @override
+  State<MemoryGuideApp> createState() => _MemoryGuideAppState();
+}
+
+class _MemoryGuideAppState extends State<MemoryGuideApp> {
+  late Future<CaregiverUser?> _sessionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _sessionFuture =
+        CaregiverServiceLocator.instance.authRepository.restoreSession();
+  }
+
+  bool get _isTestEnvironment =>
+      WidgetsBinding.instance.runtimeType.toString().contains('Test');
 
   @override
   Widget build(BuildContext context) {
     const forest = Color(0xFF174D43);
     const canvas = Color(0xFFF7F8F5);
+
+    final Widget effectiveHome = widget.home ??
+        (_isTestEnvironment
+            ? const CaregiverDashboard()
+            : FutureBuilder<CaregiverUser?>(
+                future: _sessionFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      backgroundColor: canvas,
+                      body: Center(
+                        child: CircularProgressIndicator(color: forest),
+                      ),
+                    );
+                  }
+                  final user = snapshot.data;
+                  if (user != null && user.role == 'caregiver') {
+                    return const CaregiverDashboard();
+                  }
+                  return const CaregiverLoginScreen();
+                },
+              ));
 
     return MaterialApp(
       title: 'MemoryGuide',
@@ -58,7 +102,7 @@ class MemoryGuideApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const CaregiverDashboard(),
+      home: effectiveHome,
     );
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'core/services/caregiver_service_locator.dart';
+import 'features/authentication/caregiver_login_screen.dart';
+import 'features/safety/caregiver_safety_view.dart';
 import 'medications_screen.dart';
 
 const _forest = Color(0xFF174D43);
@@ -258,6 +261,8 @@ class _DashboardHomeState extends State<_DashboardHome> {
                   const _Greeting(),
                   const SizedBox(height: 22),
                   _PatientCard(progress: progress, completed: completed),
+                  const SizedBox(height: 24),
+                  const CaregiverSafetySection(),
                   const SizedBox(height: 30),
                   _SectionHeading(
                     title: 'Your week',
@@ -1769,31 +1774,72 @@ class _ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = CaregiverServiceLocator.instance.authRepository.currentUser;
+
     return _SimplePage(
       eyebrow: 'YOUR CARE CIRCLE',
       title: 'A little about Elaine',
       description: 'Keep the details that make care feel personal close by.',
       child: Column(
-        children: const [
-          _ProfileDetail(
+        children: [
+          if (user != null) ...[
+            _ProfileDetail(
+              icon: Icons.badge_outlined,
+              title: 'Caregiver Account',
+              value: '${user.fullName} (${user.email})',
+            ),
+            const _ProfileDetail(
+              icon: Icons.verified_user_outlined,
+              title: 'Account Role',
+              value: 'Authorized Caregiver (Active)',
+            ),
+          ],
+          const _ProfileDetail(
             icon: Icons.person_rounded,
             title: 'Patient',
             value: 'Elaine Brooks',
           ),
-          _ProfileDetail(
+          const _ProfileDetail(
             icon: Icons.favorite_rounded,
             title: 'Relationship',
             value: 'Mom',
           ),
-          _ProfileDetail(
+          const _ProfileDetail(
             icon: Icons.shield_rounded,
             title: 'Care partner',
             value: 'Sarah Brooks',
           ),
-          _ProfileDetail(
+          const _ProfileDetail(
             icon: Icons.info_outline_rounded,
             title: 'Care notes',
             value: 'Familiar routines help Elaine feel at ease.',
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFFDC2626),
+                side: const BorderSide(color: Color(0xFFFECACA), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text(
+                'Sign Out',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () async {
+                await CaregiverServiceLocator.instance.authRepository.logout();
+                if (!context.mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const CaregiverLoginScreen()),
+                  (route) => false,
+                );
+              },
+            ),
           ),
         ],
       ),

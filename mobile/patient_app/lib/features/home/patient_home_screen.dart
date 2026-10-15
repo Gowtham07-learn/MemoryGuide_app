@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/location_helper.dart';
 import '../../data/models/safe_zone_state.dart';
 import '../help/emergency_sos_button.dart';
+import '../profile/patient_profile_screen.dart';
 import '../safe_zones/safe_zone_banner.dart';
 import 'caregiver_contact_card.dart';
 import 'familiar_voice_card.dart';
@@ -28,6 +32,7 @@ class PatientHomeScreen extends StatefulWidget {
 class _PatientHomeScreenState extends State<PatientHomeScreen> {
   late SafeZoneInfo _currentSafeZoneInfo;
   bool _showSimulator = false;
+  Timer? _locationTimer;
 
   @override
   void initState() {
@@ -37,6 +42,69 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           status: SafeZoneStatus.inside,
           zoneName: 'Home (Maple Street)',
         );
+
+    _initPatientData();
+  }
+
+  void _initPatientData() {
+    final auth = PatientAppServices.instance.authRepository;
+    if (auth.isAuthenticated) {
+      _loadStatus();
+      _startPeriodicLocationReporting();
+    }
+  }
+
+  Future<void> _loadStatus() async {
+    try {
+      final status = await PatientAppServices.instance.patientRepository.fetchStatus();
+      if (!mounted) return;
+
+      SafeZoneStatus calculatedStatus = SafeZoneStatus.locating;
+      if (status.insideSafeZone == true) {
+        calculatedStatus = SafeZoneStatus.inside;
+      } else if (status.insideSafeZone == false) {
+        calculatedStatus = SafeZoneStatus.outside;
+      }
+
+      setState(() {
+        _currentSafeZoneInfo = SafeZoneInfo(
+          status: calculatedStatus,
+          zoneName: 'Configured Safe Zone',
+          lastUpdated: DateTime.now(),
+        );
+      });
+    } catch (_) {
+      // Keep existing status if server unreachable
+    }
+  }
+
+  void _startPeriodicLocationReporting() {
+    _locationTimer?.cancel();
+    // Periodically post device GPS location every 60 seconds if authenticated
+    _locationTimer = Timer.periodic(const Duration(seconds: 60), (_) async {
+      final auth = PatientAppServices.instance.authRepository;
+      if (!auth.isAuthenticated || !mounted) return;
+      try {
+        final position = await LocationHelper.getCurrentPosition();
+        if (position != null) {
+          await PatientAppServices.instance.patientRepository.recordLocation(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            accuracyMeters: position.accuracy,
+            altitudeMeters: position.altitude,
+            speedMps: position.speed,
+            headingDegrees: position.heading,
+          );
+          _loadStatus();
+        }
+      } catch (_) {}
+    });
+  }
+
+  @override
+  void dispose() {
+    _locationTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -60,6 +128,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = PatientAppServices.instance.authRepository;
+    final patientName = auth.currentUser?.fullName.isNotEmpty == true
+        ? auth.currentUser!.fullName.split(' ').first
+        : 'Arthur';
+    final linkCode = auth.currentUser?.linkCode;
+
     return Scaffold(
       backgroundColor: PatientAppTheme.background,
       appBar: AppBar(
@@ -96,6 +170,22 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.person_outline_rounded,
+              color: PatientAppTheme.deepNavy,
+            ),
+            tooltip: 'My Profile',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const PatientProfileScreen(),
+                ),
+              ).then((_) {
+                if (mounted) setState(() {});
+              });
+            },
+          ),
           if (widget.isDevMode)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -147,8 +237,67 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // 1. Time and Day orientation greeting (Open typography hero)
-                        const OrientationHeader(patientName: 'Arthur'),
-                        const SizedBox(height: 18),
+                        OrientationHeader(patientName: patientName),
+                        const SizedBox(height: 14),
+
+                        // Link Code banner if user is authenticated
+                        if (linkCode != null)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                  color: const Color(0xFFBFDBFE), width: 1.2),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.link_rounded,
+                                    color: PatientAppTheme.primaryBlue),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'CAREGIVER LINK CODE',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                          color: PatientAppTheme.primaryBlue,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        linkCode,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.5,
+                                          color: PatientAppTheme.deepNavy,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const PatientProfileScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('View Code'),
+                                ),
+                              ],
+                            ),
+                          ),
 
                         // 2. Safe Zone primary status hero card
                         SafeZoneBanner(info: _currentSafeZoneInfo),
@@ -244,8 +393,21 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                               ),
                               const SizedBox(height: 18),
                               EmergencySosButton(
-                                onTriggered: () {
-                                  // Also notify or log state
+                                isDemoMode: !auth.isAuthenticated,
+                                onTriggered: () async {
+                                  if (auth.isAuthenticated) {
+                                    dynamic position;
+                                    try {
+                                      position = await LocationHelper
+                                          .getCurrentPosition();
+                                    } catch (_) {}
+                                    await PatientAppServices
+                                        .instance.patientRepository
+                                        .triggerHelp(
+                                      latitude: position?.latitude,
+                                      longitude: position?.longitude,
+                                    );
+                                  }
                                 },
                               ),
                             ],
